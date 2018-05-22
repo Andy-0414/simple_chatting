@@ -1,0 +1,31 @@
+body{
+    background-color: #F3F2EF;
+
+    margin: 0;
+}
+
+section.list{
+    position: fixed;
+    height: 100%;
+    width: 30%;
+
+    background-color: #0D0B0E;
+    color: #F3F2EF;
+    box-shadow: 0px 0px 50px grey;
+}
+button.addRoom{
+    position: absolute;
+
+    height: 10vh;
+    width: 10vh;
+
+    bottom: 2%;
+    right: 2%;
+
+    background-color: #1B1E41;
+    border-radius: 50%;
+
+    font-size: 5vh;
+    text-align: center;
+    color: #F3F2EF;
+}
