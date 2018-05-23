@@ -1,23 +1,44 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <link rel="stylesheet" href="list.css">
     <meta charset="UTF-8">
     <title>Simple list</title>
 </head>
+
 <body>
     <section class="list">
         <ul class="roomList" id="roomList">
-            <li>asdf</li>
         </ul>
-        
+
         <article class="createRoom" id="roomCreate_box">
             <h1>방 생성</h1>
-            방 이름<input type="text" id="createRoom_name">
-            <input type="submit" value="방 생성">
+            방 이름
+                <input type="text" id="createRoom_name" placeholder="방 이름" minlength="2" maxlength="10">
+                <input type="submit" value="방 생성" onclick="createRoom()">
         </article>
         <button class="addRoom" id="roomCreate_v">+</button>
     </section>
+    <section class="chat">
+        <h1>채팅방 이름</h1>
+        <div class="chatBox">
+            <div class="inChat" id="inChat">
+                <p>
+                    <img src="https://phinf.pstatic.net/contact/profile/blog/86/83/pjh8667.jpg" alt="profile" width="25"> Andy0414 : Hello user
+                </p>
+            </div>
+            <div class="inUserList" id="inUserList">
+                <p>Andy0414</p>
+            </div>
+        </div>
+        <div class="chatInput">
+            <input type="text" id="chatInput">
+            <input type="submit" value="보내기" id="send">
+        </div>
+    </section>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="list.js"></script>
 </body>
+
 </html>

@@ -3,11 +3,16 @@ body{
 
     margin: 0;
 }
+::-webkit-scrollbar {
+    display:none;
+}
 
 section.list{
+    transition: 0.5s;
+
     position: fixed;
-    height: 100%;
-    width: 30%;
+    height: 100vh;
+    width: 30vw;
 
     background-color: #333A42;
     color: #0D0B0E;
@@ -18,8 +23,8 @@ button.addRoom{
 
     position: absolute;
 
-    height: 10vh;
-    width: 10vh;
+    height: 80px;
+    width: 80px;
 
     bottom: 2%;
     right: 2%;
@@ -27,7 +32,7 @@ button.addRoom{
     background-color: #F1ECE9;
     border-radius: 50%;
 
-    font-size: 5vh;
+    font-size: 3em;
     text-align: center;
     box-shadow: 0px 0px 30px grey;
     color: #0D0B0E;
@@ -46,7 +51,7 @@ article.createRoom{
     flex-direction: column;
     align-items: center;
 
-    height: 15vh;
+    height: 200px;
     width: 25vw;
 
     bottom: 15vh;
@@ -62,11 +67,108 @@ article.createRoom{
 }
 
 ul.roomList{
+    cursor: pointer;
+    list-style: none;
     margin: 0;
+    padding: 0;
 
     font-size: 2em;
     color: #F1ECE9;
 }
 ul.roomList>li{
+    transition: 0.5s;
+    color: #F1ECE9;
     margin: 0;
+}
+ul.roomList>li:hover{
+    background-color: #D7443F;
+}
+ul.roomList>li>p{
+    float: right;
+    color: grey;
+    margin: 0;
+}
+
+
+
+
+
+div.chatBar{
+    padding: 0.5vmax  1vmax;
+    margin: 0.5vmax;
+
+    width: max-content;
+    max-width: 90%;
+
+    border-radius: 2vmax;
+    background: #FFFFFF;
+}
+
+section.chat{
+    margin-left: 30vw;
+
+    height: 100vh;
+    width: 70vw;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+section.chat>h1{
+    font-size: 3em;
+}
+section.chat>h1>button{
+    float: right;
+    font-size: 1em;
+    border-radius: 20px;
+}
+section.chat>div.chatBox{
+    height: 70vh;
+    width: 60vw;
+
+    background-color: white;
+}
+section.chat>div.chatBox>div.inChat{
+    float: left;
+    overflow-y: scroll;
+    width: 80%;
+    height: 100%;
+}
+section.chat>div.chatBox>div.inChat>p{
+    font-size: 1.5em;
+}
+section.chat>div.chatBox>div.inUserList{
+    float: right;
+    overflow-y: scroll;
+    background: #CCCCCC;
+    width: 20%;
+    height: 100%;
+}
+section.chat>div.chatInput{
+    background-color: grey;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 10vh;
+    width: 60vw;
+}
+#chatInput{
+    background: none;
+    border: none;
+
+    height: 90%;
+    width: 80%;
+
+    font-size: 2em;
+}
+#send{
+    background: none;
+    border: none;
+
+    height: 90%;
+    width: 20%;
+
+    font-size: 2em;
 }
