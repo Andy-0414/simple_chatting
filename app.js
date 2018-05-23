@@ -64,12 +64,12 @@ app.get('/', (req, res) => {
 
 app.get('/naver', passport.authenticate('naver', {
     successRedirect: '/list',
-    failureRedirect: '/fail'
+    failureRedirect: '/'
 })); // 네이버 로그인
 
 app.get('/naver/callback', passport.authenticate('naver', {
     successRedirect: '/list',
-    failureRedirect: '/fail'
+    failureRedirect: '/'
 })); // 네이버 로그인 콜백
 
 app.get('/list',(req,res)=>{
