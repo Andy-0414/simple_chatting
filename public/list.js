@@ -41,7 +41,8 @@ socket.on('roomRenewal', data => {
         roomList.appendChild(chatRoom);
     }
     function clickRoom(count) {
-        roomList.children[count].addEventListener('click', () => {
+        roomList.children[count].addEventListener('click', () => { 
+            console.log('clk : ' + count);
             socket.emit('joinRoom', {
                 roomName: roomList.children[count].className
             })

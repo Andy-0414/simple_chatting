@@ -7,9 +7,6 @@ const NaverStrategy = require('passport-naver').Strategy; // Passport Naver
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-var server = require('http').Server(app);
-var io = require('socket.io')(server);
-
 app.set('view engine', 'ejs');
 app.set('views', './views'); // EJS 사용
 
@@ -43,7 +40,7 @@ passport.serializeUser(function (user, done) {
 passport.deserializeUser(function (id, done) {
     done(null, id);
 }); // 세션 확인
-
+var users = new Set();
 passport.use(new NaverStrategy({
     clientID: '1V55O_wP1ALjzunuo0Mo',
     clientSecret: 'lPl5FJIitq',
@@ -51,10 +48,12 @@ passport.use(new NaverStrategy({
 },
     function (accessToken, refreshToken, profile, done) {
         var user = {
+            email: profile.emails[0].value,
             image: profile._json.profile_image,
-            username: profile._json.nickname,
-            room: ''
+            username: profile._json.nickname
         }
+        users.add(user);
+        //유저리스트 푸쉬
         done(null, user);
     }
 )); // 로그인 조건 - naver
@@ -75,57 +74,43 @@ app.get('/naver/callback', passport.authenticate('naver', {
     failureRedirect: '/'
 })); // 네이버 로그인 콜백
 
+app.get('/list', (req, res) => {
+    if (!req.user) {
+        res.redirect('/');
+    }
+    else {
+        console.log(users);
+        res.render('list');
+
+    }
+})
 
 var room = [{
     name: 'OPEN_CHAT',
     user: []
 }];
 
-app.get('/list', (req, res) => {
-    if (!req.user) {
-        res.redirect('/');
-    }
-    else {
-        res.render('list');
-
-        io.on('connection', socket => {
-            socket.emit('roomRenewal', { list: room });
-            socket.on('createRoom', data => {
-                if (room.findIndex(x => x.name == data.roomName) == -1 || data.roomName == '') {
-                    console.log(data.roomName)
-                    room.push({
-                        name: data.roomName,
-                        user: []
-                    })
-                    socket.emit('roomRenewal', { list: room });
-                }
-                else {
-                    socket.emit('createRoom_ERROR', {});
-                }
-
+io.on('connection', socket => {
+    socket.emit('roomRenewal', { list: room });
+    socket.on('createRoom', data => {
+        if (room.findIndex(x => x.name == data.roomName) == -1) {
+            room.push({
+                name: data.roomName,
+                user: []
             })
+            io.sockets.emit('roomRenewal', { list: room });
+        }
+        else {
+            socket.emit('createRoom_ERROR', {});
+        }
 
-            socket.on('joinRoom', data => {
-                var roomFind = room.findIndex(x => x.name == data.roomName)
-                if (roomFind == -1) {
-                }
-                else {
-                    socket.leaveAll();
-                    for (i in room) {
-                        room[i].user.splice(room[i].user.indexOf(req.user.username), 1);
-                    }
-                    // user에 room 사용해야함
+    })
 
-                    room[roomFind].user.push(req.user.username)
-                    socket.join(room[roomFind].name);
+    socket.on('joinRoom', data => {
 
-                    socket.emit('roomRenewal', { list: room });
-                }
-            })
+        io.sockets.emit('roomRenewal', { list: room });
+    })
 
-            socket.on('reqChat',data=>{
-            })
-        });
-    }
-})
-
+    socket.on('reqChat', data => {
+    })
+});
