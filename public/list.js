@@ -33,19 +33,17 @@ socket.on('roomRenewal', data => {
     roomList.innerHTML = '';
     for (i in data.list) {
         var chatRoom = document.createElement('li');
-        chatRoom.innerText = data.list[i].name;
-        chatRoom.className = data.list[i].name;
+        chatRoom.innerText = data.list[i].roomName;
+        chatRoom.className = data.list[i].roomName;
         var chatUserCount = document.createElement('p');
-        chatUserCount.innerText = data.list[i].user.length;
-        chatRoom.appendChild(chatUserCount);
+        chatUserCount.innerText = '10/10';
+        chatRoom.appendChild(chatUserCount)
         roomList.appendChild(chatRoom);
     }
     function clickRoom(count) {
-        roomList.children[count].addEventListener('click', () => { 
-            console.log('clk : ' + count);
-            socket.emit('joinRoom', {
-                roomName: roomList.children[count].className
-            })
+        roomList.children[count].addEventListener('click', () => {
+            location.href = '/list/' + roomList.children[count].className
+            console.log(roomList.children[count].className);
         })
     }
     for (var idx = 0; idx < roomList.childElementCount; idx++) {

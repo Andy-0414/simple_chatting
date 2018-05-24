@@ -4,6 +4,7 @@ const session = require('express-session'); // Session
 const MySQLStore = require('express-mysql-session')(session); // MySQL Store
 const passport = require('passport')
 const NaverStrategy = require('passport-naver').Strategy; // Passport Naver
+var cookie = require('cookie-parser');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
@@ -41,6 +42,11 @@ passport.deserializeUser(function (id, done) {
     done(null, id);
 }); // 세션 확인
 var users = new Set();
+var roomList = [];
+roomList.push({
+    roomName: 'OPEN',
+    userList: new Set()
+})
 passport.use(new NaverStrategy({
     clientID: '1V55O_wP1ALjzunuo0Mo',
     clientSecret: 'lPl5FJIitq',
@@ -65,52 +71,49 @@ app.get('/', (req, res) => {
 })
 
 app.get('/naver', passport.authenticate('naver', {
-    successRedirect: '/list',
+    successRedirect: '/list/OPEN',
     failureRedirect: '/'
 })); // 네이버 로그인
 
 app.get('/naver/callback', passport.authenticate('naver', {
-    successRedirect: '/list',
+    successRedirect: '/list/OPEN',
     failureRedirect: '/'
 })); // 네이버 로그인 콜백
 
-app.get('/list', (req, res) => {
+app.get(['/list', '/list/:roomId'], (req, res) => {
     if (!req.user) {
         res.redirect('/');
     }
     else {
-        console.log(users);
-        res.render('list');
-
+        var roomId = req.params.roomId;
+        if (roomList.findIndex(x => x.roomName == roomId) == -1) {
+            res.redirect('/list/OPEN');
+        }
+        else {
+            res.render('list');
+        }
     }
 })
-
-var room = [{
-    name: 'OPEN_CHAT',
-    user: []
-}];
-
 io.on('connection', socket => {
-    socket.emit('roomRenewal', { list: room });
+    socket.emit('roomRenewal', {
+        list: roomList
+    })
     socket.on('createRoom', data => {
-        if (room.findIndex(x => x.name == data.roomName) == -1) {
-            room.push({
-                name: data.roomName,
-                user: []
+        if (roomList.findIndex(x => x.roomName == data.roomName) == -1) {
+            var room = {
+                roomName: data.roomName,
+                userList: new Set()
+            }
+            roomList.push(room);
+            console.log(roomList)
+            io.sockets.emit('roomRenewal', {
+                list: roomList
             })
-            io.sockets.emit('roomRenewal', { list: room });
         }
         else {
             socket.emit('createRoom_ERROR', {});
         }
-
     })
 
-    socket.on('joinRoom', data => {
 
-        io.sockets.emit('roomRenewal', { list: room });
-    })
-
-    socket.on('reqChat', data => {
-    })
-});
+})
