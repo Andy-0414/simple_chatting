@@ -54,6 +54,7 @@ passport.use(new NaverStrategy({
 },
     function (accessToken, refreshToken, profile, done) {
         var user = {
+            socketId: '',
             email: profile.emails[0].value,
             image: profile._json.profile_image,
             username: profile._json.nickname
@@ -71,32 +72,31 @@ app.get('/', (req, res) => {
 })
 
 app.get('/naver', passport.authenticate('naver', {
-    successRedirect: '/list/OPEN',
+    successRedirect: '/list',
     failureRedirect: '/'
 })); // 네이버 로그인
 
 app.get('/naver/callback', passport.authenticate('naver', {
-    successRedirect: '/list/OPEN',
+    successRedirect: '/list',
     failureRedirect: '/'
 })); // 네이버 로그인 콜백
 
-app.get(['/list', '/list/:roomId'], (req, res) => {
+app.get(['/list'], (req, res) => {
     if (!req.user) {
         res.redirect('/');
     }
     else {
-        var roomId = req.params.roomId;
-        if (roomList.findIndex(x => x.roomName == roomId) == -1) {
-            res.redirect('/list/OPEN');
-        }
-        else {
-            res.render('list');
-        }
+        res.render('list');
     }
 })
+
 io.on('connection', socket => {
-    socket.emit('roomRenewal', {
-        list: roomList
+    [...users][users.size - 1].socketId = socket.id;
+    var thisRoom;
+    var findUser = [...users][[...users].findIndex(x => x.socketId == socket.id)]
+    io.sockets.emit('roomRenewal', {
+        list: roomList,
+        count: roomList.map((value, index) => { return value.userList.size })
     })
     socket.on('createRoom', data => {
         if (roomList.findIndex(x => x.roomName == data.roomName) == -1) {
@@ -105,15 +105,50 @@ io.on('connection', socket => {
                 userList: new Set()
             }
             roomList.push(room);
-            console.log(roomList)
+
             io.sockets.emit('roomRenewal', {
-                list: roomList
+                list: roomList,
+                count: roomList.map((value, index) => { return value.userList.size })
             })
         }
         else {
             socket.emit('createRoom_ERROR', {});
         }
     })
+    socket.on('joinRoom', data => {
+        socket.leaveAll();
+        for (i in roomList) {
+            roomList[i].userList.delete([...roomList[i].userList][[...roomList[i].userList].findIndex(x => x.socketId == socket.id)]);
+        }
+        roomList[roomList.findIndex(x => x.roomName == data.roomName)].userList.add([...users][[...users].findIndex(x => x.socketId == socket.id)]);
+        thisRoom = data.roomName
+        socket.join(thisRoom);
+        io.to(thisRoom).emit('resMsg', {
+            msg: findUser.username + ' 님이 들어오셨습니다.',
+            user: {
+                image: '/logo.png',
+                username: 'System'
+            }
+        })
+        io.sockets.emit('roomRenewal', {
+            list: roomList,
+            count: roomList.map((value, index) => value.userList.size)
+        })
+    })
 
-
+    socket.on('reqMsg', data => {
+        io.to(thisRoom).emit('resMsg', {
+            msg: data.msg,
+            user: findUser
+        })
+    })
+    socket.on('disconnect', data => {
+        for (i in roomList) {
+            roomList[i].userList.delete([...roomList[i].userList][[...roomList[i].userList].findIndex(x => x.socketId == socket.id)])
+        }
+        io.sockets.emit('roomRenewal', {
+            list: roomList,
+            count: roomList.map((value, index) => value.userList.size)
+        })
+    })
 })

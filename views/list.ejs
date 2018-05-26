@@ -21,20 +21,16 @@
         <button class="addRoom" id="roomCreate_v">+</button>
     </section>
     <section class="chat">
-        <h1>채팅방 이름</h1>
+        <h1 id="roomName">채팅방 이름</h1>
         <div class="chatBox">
             <div class="inChat" id="inChat">
-                <p>
-                    <img src="https://phinf.pstatic.net/contact/profile/blog/86/83/pjh8667.jpg" alt="profile" width="25"> Andy0414 : Hello user
-                </p>
             </div>
             <div class="inUserList" id="inUserList">
-                <p>Andy0414</p>
             </div>
         </div>
         <div class="chatInput">
-            <input type="text" id="chatInput">
-            <input type="submit" value="보내기" id="send">
+            <input type="text" id="chatInput" onkeypress="if(event.keyCode==13) sendServer();">
+            <input type="submit" value="보내기" id="send" onclick="sendServer()">
         </div>
     </section>
     <script src="/socket.io/socket.io.js"></script>
