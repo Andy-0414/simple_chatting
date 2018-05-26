@@ -66,7 +66,7 @@ socket.on('roomRenewal', data => {
 })
 
 socket.on('change', data => {
-    
+
 })
 
 function sendServer() {
@@ -90,4 +90,5 @@ socket.on('resMsg', data => {
     chatBar.appendChild(img);
     chatBar.appendChild(m);
     inChat.appendChild(chatBar);
+    inChat.scrollTop = inChat.scrollHeight - inChat.clientHeight;
 })
